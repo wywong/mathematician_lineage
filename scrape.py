@@ -3,14 +3,14 @@ from bs4 import BeautifulSoup
 
 
 class ScrapedMathematician:
-    def __init__(self, gene_id, full_name, advisor_ids, student_ids):
-        self.gene_id = gene_id
+    def __init__(self, id, full_name, advisor_ids, student_ids):
+        self.id = id
         self.full_name = full_name
         self.advisor_ids = advisor_ids
         self.student_ids = student_ids
 
     def __str__(self):
-        return "%s,%s,%s,%s" % (self.gene_id, self.full_name, self.advisor_ids,
+        return "%s,%s,%s,%s" % (self.id, self.full_name, self.advisor_ids,
                                 self.student_ids)
 
 
@@ -40,4 +40,4 @@ class MathematicanScraper:
                                         student_ids)
 
     def extract_id(atag):
-        return atag['href'].split('=')[-1]
+        return int(atag['href'].split('=')[-1])
