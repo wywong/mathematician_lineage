@@ -11,6 +11,10 @@ class Mathematician(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     full_name = Column(String, nullable=False)
 
+    def __repr__(self):
+        return "<Mathematician(id=%s, full_name=%s)>" % \
+            (self.id, self.full_name)
+
     def advisors(self):
         return [mentorship.advisor for mentorship in self.learnt]
 
@@ -28,6 +32,11 @@ class Mentorship(Base):
                         ForeignKey('mathematician.id'),
                         primary_key=True,
                         nullable=False)
+
+    def __repr__(self):
+        return "<Mentorship(advisor_id=%s, student_id=%s)>" % \
+            (self.advisor_id, self.student_id)
+
     advisor = relationship(
         Mathematician, primaryjoin=advisor_id == Mathematician.id,
         backref="learnt"
