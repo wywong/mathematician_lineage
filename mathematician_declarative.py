@@ -11,6 +11,10 @@ class Mathematician(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     full_name = Column(String, nullable=False)
 
+    def __iter__(self):
+        yield ("id", self.id)
+        yield ("full_name", self.full_name)
+
     def __repr__(self):
         return "<Mathematician(id=%s, full_name=%s)>" % \
             (self.id, self.full_name)
@@ -39,12 +43,12 @@ class Mentorship(Base):
 
     advisor = relationship(
         Mathematician, primaryjoin=advisor_id == Mathematician.id,
-        backref="learnt"
+        backref="taught"
     )
 
     student = relationship(
         Mathematician, primaryjoin=student_id == Mathematician.id,
-        backref="taught"
+        backref="learnt"
     )
 
 
