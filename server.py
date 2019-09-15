@@ -78,5 +78,25 @@ class Server(object):
     def index(self):
         return "Hello world!"
 
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def search(self, name=None):
+        if name is None or name == "":
+            return []
+        try:
+            session = DBSession()
+            search_term = '%{}%'.format(name.strip().lower())
+            mathematicians = session.query(Mathematician) \
+                .filter(Mathematician.full_name.like(search_term)) \
+                .limit(20)
+
+            return list(map(dict, mathematicians))
+        except Exception as e:
+            logging.error(e)
+            raise
+        finally:
+            session.close()
+
+
 if __name__ == '__main__':
     cherrypy.quickstart(Server())
