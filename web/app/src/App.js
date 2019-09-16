@@ -1,5 +1,9 @@
 import React from 'react';
 import './App.css';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Container from '@material-ui/core/Container';
+import MathematicianSearch from './MathematicianSearch';
 
 const axios = require('axios');
 
@@ -7,7 +11,7 @@ class MathematicianDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      fullName: ""
+      mathematician: {}
     };
   }
 
@@ -16,7 +20,7 @@ class MathematicianDetails extends React.Component {
   }
 
   get fullName() {
-    return this.state.fullName;
+    return this.state.mathematician.full_name;
   }
 
   fetchMathematician() {
@@ -25,7 +29,7 @@ class MathematicianDetails extends React.Component {
         .then(res => {
           let mathematician = res.data;
           this.setState({
-            fullName: mathematician.full_name
+            mathematician: mathematician
           });
         });
     }
@@ -50,38 +54,30 @@ class MathematicianDetails extends React.Component {
   }
 }
 
-
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       params: {},
-      value: ''
+      selectedOption: null,
     };
-    this.findMathematician = this.findMathematician.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
-  findMathematician(event) {
-    this.setState({
-      params: {
-        id: this.state.value
-      }
-    });
-    event.preventDefault();
-  }
-
   handleChange(event) {
-    this.setState({value: event.target.value});
+    console.log(event)
   }
 
   render() {
     return <div className="container">
-      <input placeholder="Mathematician Id"
-             value={this.state.value}
-             onChange={this.handleChange}/>
-      <button onClick={this.findMathematician}>Find</button>
-      <MathematicianDetails params={this.state.params}/>
+      <AppBar position="static">
+        <Toolbar>
+          <MathematicianSearch/>
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="sm">
+        <MathematicianDetails params={this.state.params}/>
+      </Container>
     </div>
   }
 
