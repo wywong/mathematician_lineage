@@ -4,6 +4,20 @@ import TextField from '@material-ui/core/TextField';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
+import { selectMathematician } from './actions/actions';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+
+const mapToStateProps = function(state) {
+  return {
+  };
+}
+
+const mapDispatchToProps = function(dispatch) {
+  return bindActionCreators({
+    selectMathematician: selectMathematician
+  }, dispatch);
+}
 
 const axios = require('axios');
 
@@ -39,6 +53,7 @@ export class MathematicianSearch extends React.Component {
     this.getSearchResults = this.getSearchResults.bind(this);
     this.renderInput = this.renderInput.bind(this);
     this.renderSearchResult = this.renderSearchResult.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   getSearchResults(value) {
@@ -83,12 +98,13 @@ export class MathematicianSearch extends React.Component {
   renderSearchResult(searchResultProps) {
     const { searchResult, index, itemProps, highlightedIndex, selectedItem } = searchResultProps;
     const isHighlighted = highlightedIndex === index;
-    const isSelected = (selectedItem || '').indexOf(searchResult.label) > -1;
+    const selectedItemLabel = (selectedItem || {}).label || '';
+    const isSelected = selectedItemLabel.indexOf(searchResult.label) > -1;
 
     return (
       <MenuItem
         {...itemProps}
-        key={searchResult.label}
+        key={searchResult.value}
         selected={isHighlighted}
         component="div"
         style={{
@@ -100,11 +116,17 @@ export class MathematicianSearch extends React.Component {
     );
   }
 
+  onChange(selectedItem) {
+    this.props.selectMathematician(selectedItem.value, selectedItem.label);
+  }
+
   render() {
     const { classes } = this.props;
 
     return (
-      <Downshift id="downshift-simple">
+      <Downshift id="downshift-simple"
+                 itemToString={item => item.label}
+                 onChange={this.onChange}>
         {({
           getInputProps,
           getItemProps,
@@ -137,10 +159,11 @@ export class MathematicianSearch extends React.Component {
                         searchResult,
                         index,
                         itemProps: getItemProps({
-                          item: searchResult.label,
+                          key: searchResult.value,
+                          item: searchResult,
                           style: {
                             backgroundColor: '#FAFAFA'
-                          }
+                          },
                         }),
                         highlightedIndex,
                         selectedItem,
@@ -157,4 +180,4 @@ export class MathematicianSearch extends React.Component {
   }
 }
 
-export default withStyles(styles)(MathematicianSearch);
+export default withStyles(styles)(connect(mapToStateProps, mapDispatchToProps)(MathematicianSearch));
