@@ -140,6 +140,7 @@ export class MathematicianSearch extends React.Component {
           const { onBlur, onFocus, ...inputProps } = getInputProps({
             placeholder: 'Search for a mathematician\'s name',
             onChange: ((event) => this.getSearchResults(event.target.value)),
+            autoFocus: true,
           });
 
           return (
