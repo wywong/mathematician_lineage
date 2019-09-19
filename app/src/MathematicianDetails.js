@@ -1,27 +1,26 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-const axios = require('axios');
+import { fetchStudents } from './actions/actions';
 
 const mapToStateProps = function(state) {
   return {
     mathId: state.mathId,
-    fullName: state.fullName
+    fullName: state.fullName,
+    students: state.students
   };
 }
 
 const mapDispatchToProps = function(dispatch) {
   return bindActionCreators({
+    fetchStudents: fetchStudents
   }, dispatch);
 }
 
 class MathematicianDetails extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      mathematician: {}
-    };
+    this.fetchStudents = this.fetchStudents.bind(this);
   }
 
   get mathId() {
@@ -32,35 +31,24 @@ class MathematicianDetails extends React.Component {
     return this.props.fullName;
   }
 
-  /*
-  fetchMathematician() {
-    if (/^\d+$/.test(this.mathId)) {
-      axios.get(`/api/mathematician/${this.mathId}/`)
-        .then(res => {
-          let mathematician = res.data;
-          this.setState({
-            mathematician: mathematician
-          });
-        });
-    }
+  fetchStudents() {
+    this.props.fetchStudents(this.mathId);
   }
-
-  componentDidMount() {
-      this.fetchMathematician();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.mathId !== this.props.mathId) {
-      this.fetchMathematician();
-    }
-  }
-  */
-
 
   render() {
     return <div className="mathematician-details">
       <p>ID: {this.mathId}</p>
       <p>NAME: {this.fullName}</p>
+      <button onClick={() => this.fetchStudents()}>
+        get students
+      </button>
+      <ul>
+        {
+          this.props.students.map(student => {
+            return <li>{student.fullName}</li>
+          })
+        }
+      </ul>
     </div>
   }
 }

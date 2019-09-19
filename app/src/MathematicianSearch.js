@@ -125,7 +125,7 @@ export class MathematicianSearch extends React.Component {
 
     return (
       <Downshift id="downshift-simple"
-                 itemToString={item => item.label}
+                 itemToString={item => item ? item.label : ''}
                  onChange={this.onChange}>
         {({
           getInputProps,

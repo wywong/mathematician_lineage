@@ -1,7 +1,9 @@
-import { SELECT_MATHEMATICIAN } from './actions/actions';
+import { SELECT_MATHEMATICIAN, DATA_STATE, FETCH_STUDENTS_SUCCESS } from './actions/actions';
 
 const initialState = {
-  mathId: null
+  mathId: null,
+  fullName: null,
+  students: []
 };
 
 function rootReducer(state = initialState, action) {
@@ -9,8 +11,20 @@ function rootReducer(state = initialState, action) {
     case SELECT_MATHEMATICIAN:
       return {
         mathId: action.id,
-        fullName: action.fullName
+        fullName: action.fullName,
+        students: []
       };
+    case FETCH_STUDENTS_SUCCESS:
+      return Object.assign(
+        {}, state, {
+          students: action.students.map(student => {
+            return {
+              id: student.id,
+              fullName: student.full_name
+            };
+          })
+        }
+      );
     default:
       return state;
   }
