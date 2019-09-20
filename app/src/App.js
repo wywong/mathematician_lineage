@@ -15,7 +15,7 @@ class App extends React.Component {
           <MathematicianSearch/>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="sm">
+      <Container>
         <MathematicianDetails />
       </Container>
     </div>
