@@ -24,7 +24,7 @@ export const fetchStudents = id => {
       .then(res => {
         dispatch(fetchStudentsSuccess(id, res.data));
       })
-      .then(err => {
+      .catch(err => {
         // todo
       });
   };

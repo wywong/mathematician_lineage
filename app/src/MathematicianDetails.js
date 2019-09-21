@@ -33,7 +33,8 @@ class MathematicianDetails extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.mathId !== this.props.mathId) {
+    if (prevProps.mathId !== this.props.mathId ||
+        prevProps.students !== this.props.students) {
       this.draw();
     }
   }
@@ -41,6 +42,7 @@ class MathematicianDetails extends React.Component {
   draw() {
     if (this.props.mathId !== null) {
       let graphElem = document.getElementById('graph');
+      graphElem.innerHTML = "";
       let width = graphElem.offsetWidth;
       let height = graphElem.offsetHeight;
       let svg = d3.select('#graph')
@@ -48,6 +50,13 @@ class MathematicianDetails extends React.Component {
         .attr('width', width)
         .attr('height', height);
       this.drawNode(svg, width / 2, 1.5 * NODE_RADIUS, this.props.fullName);
+      let maxNodes = Math.floor(width / (2 * NODE_RADIUS));
+      let studentsCy = 6 * NODE_RADIUS;
+      let cx = 1.5 * NODE_RADIUS;
+      this.props.students.forEach((student) => {
+        this.drawNode(svg, cx, studentsCy, student.fullName);
+        cx += 3 * NODE_RADIUS;
+      });
     }
   }
 
@@ -88,13 +97,6 @@ class MathematicianDetails extends React.Component {
       <button onClick={() => this.fetchStudents()}>
         get students
       </button>
-      <ul>
-        {
-          this.props.students.map(student => {
-            return <li>{student.fullName}</li>
-          })
-        }
-      </ul>
       <div id='graph'></div>
     </div>
   }
