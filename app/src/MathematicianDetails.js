@@ -26,6 +26,7 @@ class MathematicianDetails extends React.Component {
     this.fetchStudents = this.fetchStudents.bind(this);
     this.draw = this.draw.bind(this);
     this.drawNode = this.drawNode.bind(this);
+    this.drawLine = this.drawLine.bind(this);
   }
 
   componentDidMount() {
@@ -49,15 +50,30 @@ class MathematicianDetails extends React.Component {
         .append('svg')
         .attr('width', width)
         .attr('height', height);
-      this.drawNode(svg, width / 2, 1.5 * NODE_RADIUS, this.props.fullName);
-      let maxNodes = Math.floor(width / (2 * NODE_RADIUS));
-      let studentsCy = 6 * NODE_RADIUS;
-      let cx = 1.5 * NODE_RADIUS;
-      this.props.students.forEach((student) => {
-        this.drawNode(svg, cx, studentsCy, student.fullName);
-        cx += 3 * NODE_RADIUS;
-      });
+      let rx = width / 2;
+      let ry = 1.5 * NODE_RADIUS;
+      if (this.props.students.length > 0) {
+        let cx = 0;
+        let studentsCy = 6 * NODE_RADIUS;
+        let widthIncrement = (width - 6 * NODE_RADIUS) / (this.props.students.length + 1)
+        this.props.students.forEach((student) => {
+          cx += widthIncrement;
+          this.drawLine(svg, rx, ry, cx, studentsCy);
+          this.drawNode(svg, cx, studentsCy, student.fullName);
+        });
+      }
+      this.drawNode(svg, rx, ry, this.props.fullName);
     }
+  }
+
+  drawLine(svg, x1, y1, x2, y2) {
+    svg
+      .append('line')
+      .style('stroke', 'black')
+      .attr('x1', x1)
+      .attr('x2', x2)
+      .attr('y1', y1)
+      .attr('y2', y2);
   }
 
   drawNode(svg, cx, cy, nodeLabel) {
@@ -92,8 +108,6 @@ class MathematicianDetails extends React.Component {
 
   render() {
     return <div className="mathematician-details">
-      <p>ID: {this.mathId}</p>
-      <p>NAME: {this.fullName}</p>
       <button onClick={() => this.fetchStudents()}>
         get students
       </button>

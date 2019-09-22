@@ -2,7 +2,6 @@ import React from 'react';
 import './App.css';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Container from '@material-ui/core/Container';
 import MathematicianDetails from './MathematicianDetails';
 import MathematicianSearch from './MathematicianSearch';
 
@@ -15,9 +14,7 @@ class App extends React.Component {
           <MathematicianSearch/>
         </Toolbar>
       </AppBar>
-      <Container>
-        <MathematicianDetails />
-      </Container>
+      <MathematicianDetails />
     </div>
   }
 
