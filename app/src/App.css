@@ -3,6 +3,11 @@
   display: flex;
   flex-direction: column;
 }
+.mathematician-details .details {
+  position: absolute;
+  border: 1px solid black;
+  padding: 5px;
+}
 
 #graph {
   width: 100%;

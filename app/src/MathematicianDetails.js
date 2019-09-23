@@ -2,6 +2,7 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { fetchStudents } from './actions/actions';
+import { deburr } from 'lodash';
 import * as d3 from 'd3';
 
 const mapToStateProps = function(state) {
@@ -18,11 +19,17 @@ const mapDispatchToProps = function(dispatch) {
   }, dispatch);
 }
 
-const NODE_RADIUS = 50;
+const NODE_RADIUS = 30;
 
 class MathematicianDetails extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      mathematician: {
+        id: this.props.mathId,
+        fullName: this.props.fullName
+      }
+    };
     this.fetchStudents = this.fetchStudents.bind(this);
     this.draw = this.draw.bind(this);
     this.drawNode = this.drawNode.bind(this);
@@ -36,6 +43,12 @@ class MathematicianDetails extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.mathId !== this.props.mathId ||
         prevProps.students !== this.props.students) {
+      this.setState({
+        mathematician: {
+          id: this.props.mathId,
+          fullName: this.props.fullName
+        }
+      });
       this.draw();
     }
   }
@@ -59,10 +72,10 @@ class MathematicianDetails extends React.Component {
         this.props.students.forEach((student) => {
           cx += widthIncrement;
           this.drawLine(svg, rx, ry, cx, studentsCy);
-          this.drawNode(svg, cx, studentsCy, student.fullName);
+          this.drawNode(svg, cx, studentsCy, student.id, student.fullName);
         });
       }
-      this.drawNode(svg, rx, ry, this.props.fullName);
+      this.drawNode(svg, rx, ry, this.props.mathId, this.props.fullName);
     }
   }
 
@@ -76,14 +89,27 @@ class MathematicianDetails extends React.Component {
       .attr('y2', y2);
   }
 
-  drawNode(svg, cx, cy, nodeLabel) {
-    svg
-      .append('circle')
+  drawNode(svg, cx, cy, id, nodeLabel) {
+    let circle = svg
+      .append('circle');
+    circle
+      .datum({
+        id: id,
+        fullName: nodeLabel,
+        cx: cx,
+        cy: cy
+      })
       .style('stroke', 'gray')
       .style('fill', 'white')
       .attr('r', NODE_RADIUS)
-      .attr('cx', cx)
-      .attr('cy', cy);
+      .attr('cx', (d) => d.cx)
+      .attr('cy', (d) => d.cy);
+    circle
+      .on('click', ((d, i) => {
+        this.setState({
+          mathematician: d
+        });
+      }).bind(this));
     svg
       .append('text')
       .style('stroke', 'green')
@@ -91,15 +117,21 @@ class MathematicianDetails extends React.Component {
       .style('text-anchor', 'middle')
       .attr('x', cx)
       .attr('y', cy)
-      .text(nodeLabel);
+      .text(MathematicianDetails.toInitials(nodeLabel));
+  }
+
+  static toInitials(text) {
+    return deburr(text).split(/\s+/)
+      .map((word) => word[0])
+      .join('');
   }
 
   get mathId() {
-    return this.props.mathId;
+    return this.state.mathematician.id;
   }
 
   get fullName() {
-    return this.props.fullName;
+    return this.state.mathematician.fullName;
   }
 
   fetchStudents() {
@@ -108,9 +140,14 @@ class MathematicianDetails extends React.Component {
 
   render() {
     return <div className="mathematician-details">
-      <button onClick={() => this.fetchStudents()}>
-        get students
-      </button>
+      <div className="details">
+        <p>
+          { this.fullName }
+        </p>
+        <button onClick={() => this.fetchStudents()}>
+          get students
+        </button>
+      </div>
       <div id='graph'></div>
     </div>
   }
