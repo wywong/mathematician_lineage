@@ -66,9 +66,9 @@ class MathematicianDetails extends React.Component {
       let rx = width / 2;
       let ry = 1.5 * NODE_RADIUS;
       if (this.props.students.length > 0) {
-        let cx = 0;
+        let widthIncrement = 3 * NODE_RADIUS
+        let cx = (width - widthIncrement * this.props.students.length) / 2 - 1.5 * NODE_RADIUS;
         let studentsCy = 6 * NODE_RADIUS;
-        let widthIncrement = (width - 6 * NODE_RADIUS) / (this.props.students.length + 1)
         this.props.students.forEach((student) => {
           cx += widthIncrement;
           this.drawLine(svg, rx, ry, cx, studentsCy);
