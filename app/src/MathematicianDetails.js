@@ -1,7 +1,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { fetchStudents } from './actions/actions';
+import { fetchStudents, DATA_STATE } from './actions/actions';
 import { deburr } from 'lodash';
 import * as d3 from 'd3';
 
@@ -9,7 +9,8 @@ const mapToStateProps = function(state) {
   return {
     mathId: state.mathId,
     fullName: state.fullName,
-    students: state.students
+    tree: state.tree,
+    studentsState: state.studentsState
   };
 }
 
@@ -20,6 +21,8 @@ const mapDispatchToProps = function(dispatch) {
 }
 
 const NODE_RADIUS = 30;
+const NODE_LEVEL_ROOT = 1.5 * NODE_RADIUS;
+const NODE_LEVEL_DELTA = 4.5 * NODE_RADIUS;
 
 class MathematicianDetails extends React.Component {
   constructor(props) {
@@ -34,6 +37,7 @@ class MathematicianDetails extends React.Component {
     this.draw = this.draw.bind(this);
     this.drawNode = this.drawNode.bind(this);
     this.drawLine = this.drawLine.bind(this);
+    this.drawStudentNodes = this.drawStudentNodes.bind(this);
   }
 
   componentDidMount() {
@@ -41,8 +45,10 @@ class MathematicianDetails extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.mathId !== this.props.mathId ||
-        prevProps.students !== this.props.students) {
+    let studentsUpdated = prevProps.studentsState !== this.props.studentsState &&
+      this.props.studentsState === DATA_STATE.SUCCESS;
+
+    if (prevProps.mathId !== this.props.mathId || studentsUpdated) {
       this.setState({
         mathematician: {
           id: this.props.mathId,
@@ -54,7 +60,7 @@ class MathematicianDetails extends React.Component {
   }
 
   draw() {
-    if (this.props.mathId !== null) {
+    if (this.props.tree !== null) {
       let graphElem = document.getElementById('graph');
       graphElem.innerHTML = "";
       let width = graphElem.offsetWidth;
@@ -64,19 +70,24 @@ class MathematicianDetails extends React.Component {
         .attr('width', width)
         .attr('height', height);
       let rx = width / 2;
-      let ry = 1.5 * NODE_RADIUS;
-      if (this.props.students.length > 0) {
-        let widthIncrement = 3 * NODE_RADIUS
-        let cx = (width - widthIncrement * this.props.students.length) / 2 - 1.5 * NODE_RADIUS;
-        let studentsCy = 6 * NODE_RADIUS;
-        this.props.students.forEach((student) => {
-          cx += widthIncrement;
-          this.drawLine(svg, rx, ry, cx, studentsCy);
-          this.drawNode(svg, cx, studentsCy, student.id, student.fullName);
-        });
+      let ry = NODE_LEVEL_ROOT;
+      if (this.props.tree.root.students.length > 0) {
+        this.drawStudentNodes(svg, width, rx, ry, this.props.tree.root);
       }
       this.drawNode(svg, rx, ry, this.props.mathId, this.props.fullName);
     }
+  }
+
+  drawStudentNodes(svg, width, p_cx, p_cy, p_node) {
+    let widthIncrement = 3 * NODE_RADIUS
+    let cx = (width - widthIncrement * p_node.students.length) / 2 - 1.5 * NODE_RADIUS;
+    let cy = p_cy + NODE_LEVEL_DELTA;
+    p_node.students.forEach((student) => {
+      cx += widthIncrement;
+      this.drawLine(svg, p_cx, p_cy, cx, cy);
+      this.drawStudentNodes(svg, width, cx, cy, student);
+      this.drawNode(svg, cx, cy, student.id, student.fullName);
+    });
   }
 
   drawLine(svg, x1, y1, x2, y2) {
@@ -105,11 +116,11 @@ class MathematicianDetails extends React.Component {
       .attr('cx', (d) => d.cx)
       .attr('cy', (d) => d.cy);
     circle
-      .on('click', ((d, i) => {
+      .on('click', (d, i) => {
         this.setState({
           mathematician: d
         });
-      }).bind(this));
+      });
     svg
       .append('text')
       .style('stroke', 'green')

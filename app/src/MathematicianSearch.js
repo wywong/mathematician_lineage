@@ -117,7 +117,9 @@ export class MathematicianSearch extends React.Component {
   }
 
   onChange(selectedItem) {
-    this.props.selectMathematician(selectedItem.value, selectedItem.label);
+    if (!!selectedItem) {
+      this.props.selectMathematician(selectedItem.value, selectedItem.label);
+    }
   }
 
   render() {
