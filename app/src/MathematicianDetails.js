@@ -21,8 +21,6 @@ const mapDispatchToProps = function(dispatch) {
 }
 
 const NODE_RADIUS = 30;
-const NODE_LEVEL_ROOT = 1.5 * NODE_RADIUS;
-const NODE_LEVEL_DELTA = 4.5 * NODE_RADIUS;
 
 class MathematicianDetails extends React.Component {
   constructor(props) {
@@ -35,9 +33,6 @@ class MathematicianDetails extends React.Component {
     };
     this.fetchStudents = this.fetchStudents.bind(this);
     this.draw = this.draw.bind(this);
-    this.drawNode = this.drawNode.bind(this);
-    this.drawLine = this.drawLine.bind(this);
-    this.drawStudentNodes = this.drawStudentNodes.bind(this);
   }
 
   componentDidMount() {
@@ -69,66 +64,63 @@ class MathematicianDetails extends React.Component {
         .append('svg')
         .attr('width', width)
         .attr('height', height);
-      let rx = width / 2;
-      let ry = NODE_LEVEL_ROOT;
-      if (this.props.tree.root.students.length > 0) {
-        this.drawStudentNodes(svg, width, rx, ry, this.props.tree.root);
-      }
-      this.drawNode(svg, rx, ry, this.props.mathId, this.props.fullName);
-    }
-  }
+      let nodePadding = 1.5 * NODE_RADIUS
+      let treeGroup = svg
+        .append('g')
+        .attr('transform', `translate(${nodePadding}, ${nodePadding})`);
+      treeGroup
+        .append('g')
+        .attr('class', 'links');
+      treeGroup
+        .append('g')
+        .attr('class', 'nodes')
+      let root = d3.hierarchy(this.props.tree.root);
+      let treeLayout = d3.tree();
+      let windowBuffer = 4 * NODE_RADIUS;
+      treeLayout.size([width - windowBuffer, height - windowBuffer]);
+      treeLayout(root);
 
-  drawStudentNodes(svg, width, p_cx, p_cy, p_node) {
-    let widthIncrement = 3 * NODE_RADIUS
-    let cx = (width - widthIncrement * p_node.students.length) / 2 - 1.5 * NODE_RADIUS;
-    let cy = p_cy + NODE_LEVEL_DELTA;
-    p_node.students.forEach((student) => {
-      cx += widthIncrement;
-      this.drawLine(svg, p_cx, p_cy, cx, cy);
-      this.drawStudentNodes(svg, width, cx, cy, student);
-      this.drawNode(svg, cx, cy, student.id, student.fullName);
-    });
-  }
+	  d3.select('svg g.links')
+		.selectAll('line.link')
+		.data(root.links())
+		.enter()
+		.append('line')
+        .style('stroke', 'black')
+        .attr('x1', (d) => d.source.x)
+        .attr('y1', (d) => d.source.y)
+        .attr('x2', (d) => d.target.x)
+        .attr('y2', (d) => d.target.y);
 
-  drawLine(svg, x1, y1, x2, y2) {
-    svg
-      .append('line')
-      .style('stroke', 'black')
-      .attr('x1', x1)
-      .attr('x2', x2)
-      .attr('y1', y1)
-      .attr('y2', y2);
-  }
+	  let nodes = d3.select('svg g.nodes')
+		.selectAll('circle.node')
+		.data(root.descendants())
+		.enter()
+        .append('g');
 
-  drawNode(svg, cx, cy, id, nodeLabel) {
-    let circle = svg
-      .append('circle');
-    circle
-      .datum({
-        id: id,
-        fullName: nodeLabel,
-        cx: cx,
-        cy: cy
-      })
-      .style('stroke', 'gray')
-      .style('fill', 'white')
-      .attr('r', NODE_RADIUS)
-      .attr('cx', (d) => d.cx)
-      .attr('cy', (d) => d.cy);
-    circle
-      .on('click', (d, i) => {
+      nodes
+		.append('circle')
+        .style('stroke', 'gray')
+        .style('fill', 'white')
+        .attr('cx', (d) => d.x)
+        .attr('cy', (d) => d.y)
+		.attr('r', NODE_RADIUS);
+      nodes
+        .append('text')
+        .style('stroke', 'green')
+        .style('stroke-width', '1px')
+        .style('text-anchor', 'middle')
+        .attr('x', (node) => node.x)
+        .attr('y', (node) => node.y)
+        .text((node) => {
+          return MathematicianDetails.toInitials(node.data.fullName);
+        });
+
+      nodes.on('click', (node) => {
         this.setState({
-          mathematician: d
+          mathematician: node.data
         });
       });
-    svg
-      .append('text')
-      .style('stroke', 'green')
-      .style('stroke-width', '1px')
-      .style('text-anchor', 'middle')
-      .attr('x', cx)
-      .attr('y', cy)
-      .text(MathematicianDetails.toInitials(nodeLabel));
+    }
   }
 
   static toInitials(text) {

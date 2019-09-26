@@ -25,11 +25,11 @@ function rootReducer(state = initialState, action) {
         });
     case FETCH_STUDENTS_SUCCESS:
       let students = action.students.map(student => {
-        return {
-          id: student.id,
-          fullName: student.full_name,
-          students: []
-        };
+        return new LineageNode(
+          student.id,
+          student.full_name,
+          []
+        );
       });
       state.tree.setStudents(action.id, students);
 

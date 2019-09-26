@@ -9,6 +9,10 @@ export class LineageNode {
     this.fullName = fullName;
     this.students = students;
   }
+
+  get children() {
+    return this.students;
+  }
 }
 
 export class LineageTree {
@@ -23,9 +27,11 @@ export class LineageTree {
   setStudents(nodeId, students) {
     let node = this._nodeMap.get(nodeId);
     if (node) {
-      node.students = students;
       students.forEach((student) => {
-        this._nodeMap.set(student.id, student);
+        if (!this._nodeMap.get(student.id)) {
+          this._nodeMap.set(student.id, student);
+          node.students.push(student);
+        }
       });
     }
   }
