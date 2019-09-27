@@ -28,7 +28,8 @@ class MathematicianDetails extends React.Component {
     this.state = {
       mathematician: {
         id: this.props.mathId,
-        fullName: this.props.fullName
+        fullName: this.props.fullName,
+        tipData: null
       }
     };
     this.fetchStudents = this.fetchStudents.bind(this);
@@ -80,30 +81,42 @@ class MathematicianDetails extends React.Component {
       treeLayout.size([width - windowBuffer, height - windowBuffer]);
       treeLayout(root);
 
-	  d3.select('svg g.links')
-		.selectAll('line.link')
-		.data(root.links())
-		.enter()
-		.append('line')
+      if (!this.state.tipData) {
+        this.setState({
+          tipData: {
+            x: root.x,
+            y: root.y,
+            name: root.data.fullName
+          }
+        });
+      }
+
+
+      d3.select('svg g.links')
+        .selectAll('line.link')
+        .data(root.links())
+        .enter()
+        .append('line')
         .style('stroke', 'black')
         .attr('x1', (d) => d.source.x)
         .attr('y1', (d) => d.source.y)
         .attr('x2', (d) => d.target.x)
         .attr('y2', (d) => d.target.y);
 
-	  let nodes = d3.select('svg g.nodes')
-		.selectAll('circle.node')
-		.data(root.descendants())
-		.enter()
-        .append('g');
+    let nodes = d3.select('svg g.nodes')
+      .selectAll('circle.node')
+      .data(root.descendants())
+      .enter()
+      .append('g')
+      .attr('class', 'node');
 
       nodes
-		.append('circle')
+        .append('circle')
         .style('stroke', 'gray')
         .style('fill', 'white')
         .attr('cx', (d) => d.x)
         .attr('cy', (d) => d.y)
-		.attr('r', NODE_RADIUS);
+        .attr('r', NODE_RADIUS);
       nodes
         .append('text')
         .style('stroke', 'green')
@@ -117,7 +130,12 @@ class MathematicianDetails extends React.Component {
 
       nodes.on('click', (node) => {
         this.setState({
-          mathematician: node.data
+          mathematician: node.data,
+          tipData: {
+            x: node.x,
+            y: node.y,
+            name: node.data.fullName
+          }
         });
       });
     }
@@ -138,19 +156,27 @@ class MathematicianDetails extends React.Component {
   }
 
   fetchStudents() {
+    this.setState({
+      tipData: null
+    });
     this.props.fetchStudents(this.mathId);
   }
 
   render() {
     return <div className="mathematician-details">
-      <div className="details">
-        <p>
-          { this.fullName }
-        </p>
-        <button onClick={() => this.fetchStudents()}>
-          get students
-        </button>
-      </div>
+      {this.state.tipData ?
+          <div className="details"
+               style={{
+                 top: this.state.tipData.y + 4 * NODE_RADIUS,
+                 left: this.state.tipData.x + 2 * NODE_RADIUS,
+               }}>
+            <p>
+              { this.state.tipData.name }
+            </p>
+            <button onClick={() => this.fetchStudents()}>
+              get students
+            </button>
+          </div> : null}
       <div id='graph'></div>
     </div>
   }
