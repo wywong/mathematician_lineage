@@ -1,20 +1,42 @@
+.container {
+  margin-top: 64px;
+  height: calc(100% - 64px);
+}
+
 .mathematician-details {
-  border: 1px solid black;
   display: flex;
   flex-direction: column;
+  flex: 1 0 auto;
+  height: 100%;
 }
+
 .mathematician-details .details {
   position: absolute;
-  border: 1px solid black;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.7);
   padding: 5px;
-  background-color: white;
+  background-color: #FAFAFA;
+  font-weight: 400;
+  border: 1px #B2B2B2 solid;
+  border-radius: 5px;
 }
 
 #graph {
   width: 100%;
-  height: 500px;
+  height: 100%;
+  background-color: #F8F8F8;
+}
+
+.node circle {
+  fill: #0099CC;
+}
+.node text {
+  letter-spacing: 2px;
 }
 
 .node:hover {
   cursor: pointer;
+}
+
+.node circle:hover {
+  fill: #00688B;
 }

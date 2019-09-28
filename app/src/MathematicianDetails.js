@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import { fetchStudents, DATA_STATE } from './actions/actions';
 import { deburr } from 'lodash';
 import * as d3 from 'd3';
+import { Button } from '@material-ui/core';
+
 
 const mapToStateProps = function(state) {
   return {
@@ -86,6 +88,8 @@ class MathematicianDetails extends React.Component {
           tipData: {
             x: root.x,
             y: root.y,
+            width: width,
+            height: height,
             name: root.data.fullName
           }
         });
@@ -112,15 +116,14 @@ class MathematicianDetails extends React.Component {
 
       nodes
         .append('circle')
-        .style('stroke', 'gray')
-        .style('fill', 'white')
+        .style('stroke', 'black')
         .attr('cx', (d) => d.x)
         .attr('cy', (d) => d.y)
         .attr('r', NODE_RADIUS);
       nodes
         .append('text')
-        .style('stroke', 'green')
-        .style('stroke-width', '1px')
+        .style('stroke', '#FAFAFA')
+        .style('stroke-width', '2px')
         .style('text-anchor', 'middle')
         .attr('x', (node) => node.x)
         .attr('y', (node) => node.y)
@@ -134,6 +137,8 @@ class MathematicianDetails extends React.Component {
           tipData: {
             x: node.x,
             y: node.y,
+            width: width,
+            height: height,
             name: node.data.fullName
           }
         });
@@ -145,6 +150,19 @@ class MathematicianDetails extends React.Component {
     return deburr(text).split(/\s+/)
       .map((word) => word[0])
       .join('');
+  }
+
+  static tipPosToPos(tipData) {
+
+    let top = tipData.y + 4 * NODE_RADIUS;
+    if (top > tipData.height - 4 * NODE_RADIUS) {
+      top = tipData.height - 4 * NODE_RADIUS;
+    }
+    let left = tipData.x + 2 * NODE_RADIUS;
+    return {
+      top: top,
+      left: left,
+    }
   }
 
   get mathId() {
@@ -166,16 +184,14 @@ class MathematicianDetails extends React.Component {
     return <div className="mathematician-details">
       {this.state.tipData ?
           <div className="details"
-               style={{
-                 top: this.state.tipData.y + 4 * NODE_RADIUS,
-                 left: this.state.tipData.x + 2 * NODE_RADIUS,
-               }}>
+               style={MathematicianDetails.tipPosToPos(this.state.tipData)}>
             <p>
               { this.state.tipData.name }
             </p>
-            <button onClick={() => this.fetchStudents()}>
+            <Button variant='outlined'
+                    onClick={() => this.fetchStudents()}>
               get students
-            </button>
+            </Button>
           </div> : null}
       <div id='graph'></div>
     </div>
