@@ -1,7 +1,10 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, func, Index, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
+import os
+
+DB_CONF = os.environ['MATH_DB_CONFIG']
 
 Base = declarative_base()
 
@@ -9,7 +12,8 @@ Base = declarative_base()
 class Mathematician(Base):
     __tablename__ = 'mathematician'
     id = Column(Integer, primary_key=True, nullable=False)
-    full_name = Column(String, nullable=False)
+    full_name = Column(String, nullable=False, index=True)
+    visited = Column(Boolean, nullable=False)
 
     def __iter__(self):
         yield ("id", self.id)
@@ -52,6 +56,6 @@ class Mentorship(Base):
     )
 
 
-engine = create_engine('sqlite:///mathematician.db')
+engine = create_engine(DB_CONF)
 
 Base.metadata.create_all(engine)

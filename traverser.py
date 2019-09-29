@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from mathematician_declarative import Base, Mathematician, Mentorship
 from crawl import MathCrawler
 import logging
+import os
 import sys
 import time
 
@@ -10,10 +11,12 @@ logging.getLogger().setLevel(logging.INFO)
 
 seed = []
 
+DB_CONF = os.environ['MATH_DB_CONFIG']
+
 if len(sys.argv) == 2:
     seed = [int(sys.argv[1])]
 
-engine = create_engine('sqlite:///mathematician.db')
+engine = create_engine(DB_CONF)
 
 Base.metadata.bind = engine
 
@@ -24,15 +27,8 @@ crawler = MathCrawler(DBSession())
 
 TRAVERSAL_LIMIT = 5
 
-unvisited_advisors_query = session.query(Mentorship.advisor_id) \
-    .outerjoin(Mathematician, Mathematician.id == Mentorship.advisor_id) \
-    .filter(Mathematician.id.__eq__(None)) \
-    .distinct() \
-    .limit(TRAVERSAL_LIMIT)
-unvisited_students_query = session.query(Mentorship.student_id) \
-    .outerjoin(Mathematician, Mathematician.id == Mentorship.student_id) \
-    .filter(Mathematician.id.__eq__(None)) \
-    .distinct() \
+unvisited_mathematicians_query = session.query(Mathematician.id) \
+    .filter(Mathematician.visited.__eq__(False)) \
     .limit(TRAVERSAL_LIMIT)
 
 
@@ -42,16 +38,12 @@ class Traverser:
 
     def traverse(self):
         if not self.queue:
-            unvisited_advisor_ids = \
-                [id for (id,) in unvisited_advisors_query.all()]
-            logging.info("Unvisited advisors: %s" % unvisited_advisor_ids)
-            self.queue = unvisited_advisor_ids
+            unvisited_mathematician_ids = \
+                [id for (id,) in unvisited_mathematicians_query.all()]
+            logging.info("Unvisited mathematicians: %s" %
+                         unvisited_mathematician_ids)
+            self.queue = unvisited_mathematician_ids
 
-        if not self.queue:
-            unvisited_student_ids = \
-                [id for (id,) in unvisited_students_query.all()]
-            logging.info("Unvisited students: %s" % unvisited_student_ids)
-            self.queue = unvisited_student_ids
 
         if not self.queue:
             logging.info('No more unvisited ids')

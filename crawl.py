@@ -15,32 +15,39 @@ class MathCrawler:
                 if scraped_data.id != id:
                     raise "scraped mismatch: (id, scraped_id)=(%s, %s)" % \
                         (id, math_id)
-                self.addMathematician(scraped_data)
+                self.addMathematician(scraped_data.id,
+                                      scraped_data.full_name,
+                                      True)
 
                 for advisor_id in scraped_data.advisor_ids:
+                    self.addMathematician(advisor_id, "", False)
                     self.addMentorship(advisor_id, math_id)
 
                 for student_id in scraped_data.student_ids:
+                    self.addMathematician(student_id, "", False)
                     self.addMentorship(math_id, student_id)
                 self.session.commit()
         except Exception as e:
             logging.exception(e)
             self.session.rollback()
 
-    def addMathematician(self, scraped_data):
+    def addMathematician(self, id, full_name, visited):
         try:
-            id = scraped_data.id
-            exist_query = self.session.query(Mathematician) \
-                .filter(Mathematician.id == id)
+            mathematician = self.session.query(Mathematician) \
+                .get(id)
 
-            exists = self.session.query(exist_query.exists()).scalar()
-            if not exists:
+            if mathematician is None:
                 self.session.add(
                     Mathematician(id=id,
-                                  full_name=scraped_data.full_name)
+                                  full_name=full_name,
+                                  visited=visited)
                 )
+            elif mathematician.visited:
+                logging.warn("Visiting visited mathematician: (id)=(%s)" % id)
             else:
-                logging.warn("Visited existing mathematician: (id)=(%s)" % id)
+                mathematician.full_name = full_name
+                mathematician.visited = visited
+                logging.info("Visited mathematician: (id)=(%s)" % id)
         except Exception as e:
             logging.error(
                 'An error occurred adding the mathematician: (id)=(%s)' % id

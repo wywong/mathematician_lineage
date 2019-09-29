@@ -3,8 +3,10 @@ from sqlalchemy.orm import sessionmaker
 from mathematician_declarative import Base, Mathematician
 import logging
 import cherrypy
+import os
 
-engine = create_engine('sqlite:///mathematician.db')
+DB_CONF = os.environ['MATH_DB_CONFIG']
+engine = create_engine(DB_CONF)
 
 Base.metadata.bind = engine
 
@@ -87,8 +89,8 @@ class Server(object):
             session = DBSession()
             search_term = '%{}%'.format(name.strip().lower())
             mathematicians = session.query(Mathematician) \
-                .filter(Mathematician.full_name.like(search_term)) \
-                .limit(20)
+                .filter(Mathematician.full_name.ilike(search_term)) \
+                .limit(10)
 
             return list(map(dict, mathematicians))
         except Exception as e:
