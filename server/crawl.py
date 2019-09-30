@@ -1,5 +1,5 @@
 from mathematician_declarative import Mathematician, Mentorship
-from scrape import MathematicanScraper
+from scrape import MathematicianScraper
 import logging
 
 
@@ -9,7 +9,7 @@ class MathCrawler:
 
     def crawl(self, id):
         try:
-            scraped_data = MathematicanScraper.scrape(id)
+            scraped_data = MathematicianScraper.scrape(id)
             if scraped_data is not None:
                 math_id = scraped_data.id
                 if scraped_data.id != id:
