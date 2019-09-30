@@ -31,8 +31,8 @@ class MathematicianDetails extends React.Component {
       mathematician: {
         id: this.props.mathId,
         fullName: this.props.fullName,
-        tipData: null
-      }
+      },
+      tipData: null,
     };
     this.fetchStudents = this.fetchStudents.bind(this);
     this.draw = this.draw.bind(this);
@@ -50,8 +50,9 @@ class MathematicianDetails extends React.Component {
       this.setState({
         mathematician: {
           id: this.props.mathId,
-          fullName: this.props.fullName
-        }
+          fullName: this.props.fullName,
+        },
+        tipData: null,
       });
       this.draw();
     }
@@ -147,7 +148,9 @@ class MathematicianDetails extends React.Component {
   }
 
   static toInitials(text) {
-    return deburr(text).split(/\s+/)
+    return deburr(text)
+      .replace(/\(\w+\)/g, '')
+      .split(/\s+/)
       .map((word) => word[0])
       .join('');
   }
