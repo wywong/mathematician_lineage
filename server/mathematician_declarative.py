@@ -1,4 +1,13 @@
-from sqlalchemy import Boolean, Column, ForeignKey, func, Index, Integer, String
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKey,
+    Index,
+    Integer,
+    LargeBinary,
+    String,
+    func
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -14,6 +23,8 @@ class Mathematician(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     full_name = Column(String, nullable=False, index=True)
     visited = Column(Boolean, nullable=False)
+    image = Column(LargeBinary, nullable=True)
+    wiki_url = Column(String, nullable=True)
 
     def __iter__(self):
         yield ("id", self.id)

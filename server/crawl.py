@@ -17,7 +17,9 @@ class MathCrawler:
                         (id, math_id)
                 self.addMathematician(scraped_data.id,
                                       scraped_data.full_name,
-                                      True)
+                                      True,
+                                      scraped_data.image,
+                                      scraped_data.wiki_url)
 
                 for advisor_id in scraped_data.advisor_ids:
                     self.addMathematician(advisor_id, "", False)
@@ -31,7 +33,7 @@ class MathCrawler:
             logging.exception(e)
             self.session.rollback()
 
-    def addMathematician(self, id, full_name, visited):
+    def addMathematician(self, id, full_name, visited, image=None, wiki_url=None):
         try:
             mathematician = self.session.query(Mathematician) \
                 .get(id)
@@ -40,7 +42,9 @@ class MathCrawler:
                 self.session.add(
                     Mathematician(id=id,
                                   full_name=full_name,
-                                  visited=visited)
+                                  visited=visited,
+                                  image=image,
+                                  wiki_url=wiki_url)
                 )
             elif mathematician.visited:
                 logging.warn("Visiting visited mathematician: (id)=(%s)" % id)
