@@ -5,12 +5,19 @@ from urllib.parse import quote
 
 
 class ScrapedMathematician:
-    def __init__(self, id, full_name, advisor_ids, student_ids, image=None):
+    def __init__(self,
+                 id,
+                 full_name,
+                 advisor_ids,
+                 student_ids,
+                 image=None,
+                 wiki_url=None):
         self.id = id
         self.full_name = full_name
         self.advisor_ids = advisor_ids
         self.student_ids = student_ids
         self.image = image
+        self.wiki_url = wiki_url
 
     def __str__(self):
         return "%s,%s,%s,%s" % (self.id, self.full_name, self.advisor_ids,
@@ -38,15 +45,17 @@ class MathematicianScraper:
                     student_ids.append(MathematicianScraper.extract_id(student))
 
             image = None
+            wiki_url = None
             try:
-                image = MathematicianScraper.get_image(full_name)
+                wiki_url, image = MathematicianScraper.get_image(full_name)
             except Exception as e:
                 pass
             return ScrapedMathematician(id,
                                         full_name,
                                         advisor_ids,
                                         student_ids,
-                                        image)
+                                        image,
+                                        wiki_url)
 
     def get_image(name):
         base_wiki_url = 'https://en.wikipedia.org/w/api.php'
@@ -65,7 +74,7 @@ class MathematicianScraper:
                     img_url = 'https:' + img['src']
                     resp = urllib.request.urlopen(img_url)
                     if resp.status == 200:
-                        return resp.read()
+                        return (request_page_url, resp.read())
 
     def extract_id(atag):
         return int(atag['href'].split('=')[-1])
