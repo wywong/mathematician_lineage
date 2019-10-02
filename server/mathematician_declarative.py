@@ -29,6 +29,11 @@ class Mathematician(Base):
     def __iter__(self):
         yield ("id", self.id)
         yield ("full_name", self.full_name)
+        if self.image is None:
+            yield ("image_url", None)
+        else:
+            yield ("image_url", '/api/mathematician/%s/photo/' % self.id)
+        yield ("wiki_url", self.wiki_url)
 
     def __repr__(self):
         return "<Mathematician(id=%s, full_name=%s)>" % \

@@ -2,8 +2,14 @@ import axios from 'axios';
 
 export const SELECT_MATHEMATICIAN = 'SELECT_MATHEMATICIAN';
 
-export function selectMathematician(id, fullName) {
-  return { type: SELECT_MATHEMATICIAN, id: id, fullName: fullName };
+export function selectMathematician(mathematician) {
+  return {
+    type: SELECT_MATHEMATICIAN,
+    id: mathematician.id,
+    fullName: mathematician.full_name,
+    image_url: mathematician.image_url,
+    wiki_url: mathematician.wiki_url,
+  };
 }
 
 export const FETCH_STUDENTS_STARTED = 'FETCH_STUDENTS_STARTED';

@@ -68,7 +68,7 @@ export class MathematicianSearch extends React.Component {
           searchResults: response.data.map((mathematician) => {
             return {
               label: mathematician.full_name,
-              value: mathematician.id
+              value: mathematician
             };
           })
         });
@@ -104,7 +104,7 @@ export class MathematicianSearch extends React.Component {
     return (
       <MenuItem
         {...itemProps}
-        key={searchResult.value}
+        key={searchResult.value.id}
         selected={isHighlighted}
         component="div"
         style={{
@@ -118,7 +118,7 @@ export class MathematicianSearch extends React.Component {
 
   onChange(selectedItem) {
     if (!!selectedItem) {
-      this.props.selectMathematician(selectedItem.value, selectedItem.label);
+      this.props.selectMathematician(selectedItem.value);
     }
   }
 
@@ -162,7 +162,7 @@ export class MathematicianSearch extends React.Component {
                         searchResult,
                         index,
                         itemProps: getItemProps({
-                          key: searchResult.value,
+                          key: searchResult.value.id,
                           item: searchResult,
                           style: {
                             backgroundColor: '#FAFAFA'

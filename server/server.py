@@ -4,6 +4,8 @@ from mathematician_declarative import Base, Mathematician
 import logging
 import cherrypy
 import os
+from cherrypy.lib import file_generator
+import io
 
 DB_CONF = os.environ['MATH_DB_CONFIG']
 engine = create_engine(DB_CONF)
@@ -70,6 +72,12 @@ class MathematicianController(object):
             raise
         finally:
             session.close()
+
+    @cherrypy.expose
+    def photo(self, mathematician_id):
+        session = DBSession()
+        mathematician = session.query(Mathematician).get(mathematician_id)
+        return file_generator(io.BytesIO(mathematician.image))
 
 
 class Server(object):

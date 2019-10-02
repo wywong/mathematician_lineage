@@ -2,8 +2,7 @@ import { SELECT_MATHEMATICIAN, DATA_STATE, FETCH_STUDENTS_STARTED, FETCH_STUDENT
 import { LineageTree, LineageNode } from './models/tree';
 
 const initialState = {
-  mathId: null,
-  fullName: null,
+  rootMathematician: null,
   tree: null,
   studentsState: DATA_STATE.UNLOADED
 };
@@ -11,11 +10,16 @@ const initialState = {
 function rootReducer(state = initialState, action) {
   switch(action.type) {
     case SELECT_MATHEMATICIAN:
-      let tree = new LineageTree(new LineageNode(action.id, action.fullName, []));
+      let root = new LineageNode(
+        action.id,
+        action.fullName,
+        action.image_url,
+        action.wiki_url,
+        []
+      );
+      let tree = new LineageTree(root);
       return {
-        mathId: action.id,
-        fullName: action.fullName,
-        students: [],
+        rootMathematician: root,
         tree: tree
       };
     case FETCH_STUDENTS_STARTED:
@@ -28,6 +32,8 @@ function rootReducer(state = initialState, action) {
         return new LineageNode(
           student.id,
           student.full_name,
+          student.image_url,
+          student.wiki_url,
           []
         );
       });

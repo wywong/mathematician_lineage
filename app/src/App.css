@@ -18,6 +18,8 @@
   font-weight: 400;
   border: 1px #B2B2B2 solid;
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
 }
 
 #graph {

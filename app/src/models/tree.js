@@ -3,10 +3,14 @@ export class LineageNode {
   constructor(
     id,
     fullName,
+    image_url,
+    wiki_url,
     students
   ) {
     this.id = id;
     this.fullName = fullName;
+    this.image_url = image_url;
+    this.wiki_url = wiki_url;
     this.students = students;
   }
 

@@ -9,8 +9,7 @@ import { Button } from '@material-ui/core';
 
 const mapToStateProps = function(state) {
   return {
-    mathId: state.mathId,
-    fullName: state.fullName,
+    rootMathematician: state.rootMathematician,
     tree: state.tree,
     studentsState: state.studentsState
   };
@@ -28,10 +27,7 @@ class MathematicianDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      mathematician: {
-        id: this.props.mathId,
-        fullName: this.props.fullName,
-      },
+      mathematician: this.props.rootMathematician,
       tipData: null,
     };
     this.fetchStudents = this.fetchStudents.bind(this);
@@ -46,12 +42,9 @@ class MathematicianDetails extends React.Component {
     let studentsUpdated = prevProps.studentsState !== this.props.studentsState &&
       this.props.studentsState === DATA_STATE.SUCCESS;
 
-    if (prevProps.mathId !== this.props.mathId || studentsUpdated) {
+    if (prevProps.rootMathematician !== this.props.rootMathematician || studentsUpdated) {
       this.setState({
-        mathematician: {
-          id: this.props.mathId,
-          fullName: this.props.fullName,
-        },
+        mathematician: this.props.rootMathematician,
         tipData: null,
       });
       this.draw();
@@ -176,6 +169,14 @@ class MathematicianDetails extends React.Component {
     return this.state.mathematician.fullName;
   }
 
+  get wikiUrl() {
+    return this.state.mathematician.wiki_url;
+  }
+
+  get imageUrl() {
+    return this.state.mathematician.image_url;
+  }
+
   fetchStudents() {
     this.setState({
       tipData: null
@@ -191,6 +192,9 @@ class MathematicianDetails extends React.Component {
             <p>
               { this.state.tipData.name }
             </p>
+            {this.wikiUrl ?
+                <a href={this.wikiUrl} target="_blank" rel="noopener noreferrer">Wikipedia</a> : null}
+            {this.imageUrl ?  <img src={this.imageUrl} alt={this.fullName}/> : null}
             <Button variant='outlined'
                     onClick={() => this.fetchStudents()}>
               get students
