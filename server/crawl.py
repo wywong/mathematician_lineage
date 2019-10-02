@@ -51,6 +51,8 @@ class MathCrawler:
             else:
                 mathematician.full_name = full_name
                 mathematician.visited = visited
+                mathematician.image = image
+                mathematician.wiki_url = wiki_url
                 logging.info("Visited mathematician: (id)=(%s)" % id)
         except Exception as e:
             logging.error(
