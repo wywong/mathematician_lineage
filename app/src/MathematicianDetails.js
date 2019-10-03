@@ -148,11 +148,13 @@ class MathematicianDetails extends React.Component {
       .join('');
   }
 
-  static tipPosToPos(tipData) {
+  static tipPosToPos(tipData, hasImage) {
 
-    let top = tipData.y + 4 * NODE_RADIUS;
-    if (top > tipData.height - 4 * NODE_RADIUS) {
-      top = tipData.height - 4 * NODE_RADIUS;
+    let ydelta = 4 * NODE_RADIUS
+    let top = tipData.y + ydelta;
+    let yshift = (hasImage ? 300 : 0) + ydelta;
+    if (top > tipData.height - yshift) {
+      top = tipData.height - yshift;
     }
     let left = tipData.x + 2 * NODE_RADIUS;
     return {
@@ -188,7 +190,7 @@ class MathematicianDetails extends React.Component {
     return <div className="mathematician-details">
       {this.state.tipData ?
           <div className="details"
-               style={MathematicianDetails.tipPosToPos(this.state.tipData)}>
+               style={MathematicianDetails.tipPosToPos(this.state.tipData, this.imageUrl)}>
             <p>
               { this.state.tipData.name }
             </p>
