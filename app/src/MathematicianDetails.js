@@ -32,6 +32,7 @@ class MathematicianDetails extends React.Component {
     };
     this.fetchStudents = this.fetchStudents.bind(this);
     this.draw = this.draw.bind(this);
+    this.drawTree = this.drawTree.bind(this);
   }
 
   componentDidMount() {
@@ -89,10 +90,14 @@ class MathematicianDetails extends React.Component {
         });
       }
 
+      this.drawTree(width, height, root.descendants(), root.links());
+    }
+  }
 
+  drawTree(width, height, node_data, links) {
       d3.select('svg g.links')
         .selectAll('line.link')
-        .data(root.links())
+        .data(links)
         .enter()
         .append('line')
         .style('stroke', 'black')
@@ -103,7 +108,7 @@ class MathematicianDetails extends React.Component {
 
     let nodes = d3.select('svg g.nodes')
       .selectAll('circle.node')
-      .data(root.descendants())
+      .data(node_data)
       .enter()
       .append('g')
       .attr('class', 'node');
@@ -137,7 +142,6 @@ class MathematicianDetails extends React.Component {
           }
         });
       });
-    }
   }
 
   static toInitials(text) {

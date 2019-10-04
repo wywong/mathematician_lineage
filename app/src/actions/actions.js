@@ -49,3 +49,32 @@ export function fetchStudentsSuccess(id, mathematicians) {
   };
 }
 
+export const FETCH_ADVISORS_STARTED = 'FETCH_ADVISORS_STARTED';
+export const FETCH_ADVISORS_SUCCESS = 'FETCH_ADVISORS_SUCCESS';
+export const FETCH_ADVISORS_FAILED = 'FETCH_ADVISORS_FAILED';
+
+export const fetchAdvisors = id => {
+  return dispatch => {
+    dispatch(fetchAdvisorsStarted());
+    axios.get(`/api/mathematician/${id}/advisors/`)
+      .then(res => {
+        dispatch(fetchAdvisorsSuccess(id, res.data));
+      })
+      .catch(err => {
+        // todo
+      });
+  };
+};
+
+
+function fetchAdvisorsStarted() {
+  return { type: FETCH_ADVISORS_STARTED };
+};
+
+export function fetchAdvisorsSuccess(id, mathematicians) {
+  return {
+    type: FETCH_ADVISORS_SUCCESS,
+    id: id,
+    Advisors: mathematicians
+  };
+}
