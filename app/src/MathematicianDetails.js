@@ -33,10 +33,12 @@ class MathematicianDetails extends React.Component {
     this.fetchStudents = this.fetchStudents.bind(this);
     this.draw = this.draw.bind(this);
     this.drawTree = this.drawTree.bind(this);
+    this.drawForceLinked = this.drawForceLinked.bind(this);
   }
 
   componentDidMount() {
-    this.draw();
+    // this.draw();
+      this.drawForceLinked();
   }
 
   componentDidUpdate(prevProps) {
@@ -48,7 +50,8 @@ class MathematicianDetails extends React.Component {
         mathematician: this.props.rootMathematician,
         tipData: null,
       });
-      this.draw();
+      this.drawForceLinked();
+      // this.draw();
     }
   }
 
@@ -95,16 +98,16 @@ class MathematicianDetails extends React.Component {
   }
 
   drawTree(width, height, node_data, links) {
-      d3.select('svg g.links')
-        .selectAll('line.link')
-        .data(links)
-        .enter()
-        .append('line')
-        .style('stroke', 'black')
-        .attr('x1', (d) => d.source.x)
-        .attr('y1', (d) => d.source.y)
-        .attr('x2', (d) => d.target.x)
-        .attr('y2', (d) => d.target.y);
+    d3.select('svg g.links')
+      .selectAll('line.link')
+      .data(links)
+      .enter()
+      .append('line')
+      .style('stroke', 'black')
+      .attr('x1', (d) => d.source.x)
+      .attr('y1', (d) => d.source.y)
+      .attr('x2', (d) => d.target.x)
+      .attr('y2', (d) => d.target.y);
 
     let nodes = d3.select('svg g.nodes')
       .selectAll('circle.node')
@@ -142,6 +145,103 @@ class MathematicianDetails extends React.Component {
           }
         });
       });
+  }
+
+  drawForceLinked() {
+    if (this.props.tree !== null) {
+      let graphElem = document.getElementById('graph');
+      graphElem.innerHTML = "";
+      let width = graphElem.offsetWidth;
+      let height = graphElem.offsetHeight;
+      let svg = d3.select('#graph')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+      let treeGroup = svg
+        .append('g');
+      treeGroup
+        .append('g')
+        .attr('class', 'links');
+      treeGroup
+        .append('g')
+        .attr('class', 'nodes')
+      let root = d3.hierarchy(this.props.tree.root);
+      let treeLayout = d3.tree();
+      let windowBuffer = 4 * NODE_RADIUS;
+      treeLayout.size([width - windowBuffer, height - windowBuffer]);
+      treeLayout(root);
+
+      if (!this.state.tipData) {
+        this.setState({
+          tipData: {
+            x: root.x,
+            y: root.y,
+            width: width,
+            height: height,
+            name: root.data.fullName
+          }
+        });
+      }
+
+      let node_data = root.descendants();
+      let links = root.links();
+      let simulation = d3.forceSimulation(node_data)
+        .force("link", d3.forceLink(links).id(d => d.id).distance(100).strength(1))
+        .force("charge", d3.forceManyBody().strength(-50))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("x", d3.forceX())
+        .force("y", d3.forceY());
+      let link = d3.select('svg g.links')
+        .selectAll('line.link')
+        .data(links)
+        .enter()
+        .append('line')
+        .style('stroke', 'black');
+      const nodes = d3.select('svg g.nodes')
+        .selectAll("circle")
+        .data(node_data)
+        .enter();
+      nodes
+        .append('circle')
+        .style('stroke', 'black')
+        .attr('cx', (d) => d.x)
+        .attr('cy', (d) => d.y)
+        .attr('r', NODE_RADIUS);
+      nodes
+        .append('text')
+        .style('stroke', '#FAFAFA')
+        .style('stroke-width', '2px')
+        .style('text-anchor', 'middle')
+        .attr('x', (node) => node.x)
+        .attr('y', (node) => node.y)
+        .text((node) => {
+          return MathematicianDetails.toInitials(node.data.fullName);
+        });
+
+      // nodes.on('click', (node) => {
+      //   this.setState({
+      //     mathematician: node.data,
+      //     tipData: {
+      //       x: node.x,
+      //       y: node.y,
+      //       width: width,
+      //       height: height,
+      //       name: node.data.fullName
+      //     }
+      //   });
+      // });
+
+      simulation.on("tick", () => {
+        link
+          .attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+        nodes
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y);
+      });
+    }
   }
 
   static toInitials(text) {
